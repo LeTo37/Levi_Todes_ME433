@@ -36,7 +36,6 @@
 #pragma config FUSBIDIO = ON // USB pins controlled by USB module
 #pragma config FVBUSONIO = ON // USB BUSON controlled by USB module
 
-
 int main() {
 
     __builtin_disable_interrupts();
@@ -55,16 +54,27 @@ int main() {
 
     // do your TRIS and LAT commands here
     //Make B4 an input
-    TRISBbits.TRISB4 = 1; 
+    TRISBbits.TRISB4 = 1;
     //Make A4 an output - initially high
     TRISAbits.TRISA4 = 0;
     LATAbits.LATA4 = 1;
 
     __builtin_enable_interrupts();
 
-    while(1) {
-	// use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
-	// remember the core timer runs at half the sysclk
-    
+    //start fresh
+    _CP0_SET_COUNT(0);
+
+    while (1) {
+        // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
+        // remember the core timer runs at half the sysclk
+        //pushbutton pressed - do nothing
+        while (PORTBbits.RB4 == 0) {
+            LATAbits.LATA4 = 0; // Keep light off
+        }
+        //1kHz LED toggle
+        if (_CP0_GET_COUNT() > 24000) {
+            LATAbits.LATA4 = !LATAbits.LATA4;
+            _CP0_SET_COUNT(0);
+        }
     }
 }
