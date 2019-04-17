@@ -31,15 +31,23 @@ int main() {
     int i = 0;
     int sine[1000];
     for (i = 0; i < 1000; i++) {
-        sine[i] = 512+ 512 * sin(i * 2 * 3.1415 * 10 / 1000);
+        sine[i] = 2*(512 + 512 * sin(i * 2 * 3.1415 * 10 / 1000));
     }
 
     //Triangle wave - 5Hz - VoutB
+    int j = 0,k=0;
     i = 0;
     int tri[1000];
-    for (i = 0; i < 1000; i++) {
-        tri[i] = (200 - (i%(200)));
-    }
+    while (k <1000){
+    for (i = 0; i < 200; i++) {
+        if (i < 101) {
+            j++;
+        } else {
+            j--;
+        }
+        tri[k] =  10*j;
+        k++;
+    }}
     
     //start fresh
     _CP0_SET_COUNT(0);
