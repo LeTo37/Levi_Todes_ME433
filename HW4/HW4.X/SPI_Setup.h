@@ -7,7 +7,7 @@
 #define CS LATBbits.LATB7  //CS pin
 
 unsigned char spi_io(unsigned char o);
-void initSPI1();
+void initSPI1(void);
 void setVoltage(char channel, int voltage);
 
 #endif
