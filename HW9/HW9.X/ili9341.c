@@ -212,7 +212,9 @@ void SPI1_init() {
     SDI1Rbits.SDI1R = 0b0100; // B8 is SDI1
     RPA1Rbits.RPA1R = 0b0011; // A1 is SDO1
     TRISBbits.TRISB7 = 0; // CS is B7
+    TRISBbits.TRISB9 = 0; // touch_CS is B9
     CS = 1; // CS starts high
+    touch_CS = 1;
 
     // DC pin
     TRISBbits.TRISB15 = 0;
@@ -220,7 +222,7 @@ void SPI1_init() {
 
     SPI1CON = 0; // turn off the spi module and reset it
     SPI1BUF; // clear the rx buffer by reading from it
-    SPI1BRG = 0; // baud rate to 12 MHz [SPI1BRG = (48000000/(2*desired))-1]
+    SPI1BRG = 3; // baud rate to 12 MHz [SPI1BRG = (48000000/(2*desired))-1]
     SPI1STATbits.SPIROV = 0; // clear the overflow bit
     SPI1CONbits.CKE = 1; // data changes when clock goes from hi to lo (since CKP is 0)
     SPI1CONbits.MSTEN = 1; // master operation
@@ -321,7 +323,7 @@ void LCD_drawString(char *string, unsigned short x, unsigned short y, unsigned s
 void LCD_drawProgBar_h(float value, unsigned short x, unsigned short y, unsigned short length, unsigned short fcolour, unsigned short bcolour) {
     char i = 0;
     char j;
-    int val = (int)value;
+    int val = (int) value;
     while (i <= length) {
         for (j = 0; j < 8; j++) {
             if (x + i > ILI9341_TFTWIDTH) {
@@ -354,7 +356,7 @@ void LCD_drawProgBar_h(float value, unsigned short x, unsigned short y, unsigned
 void LCD_drawProgBar_v(float value, unsigned short x, unsigned short y, unsigned short length, unsigned short fcolour, unsigned short bcolour) {
     char i = 0;
     char j;
-    int val = (int)value;
+    int val = (int) value;
     while (i <= length) {
         for (j = 0; j < 8; j++) {
             if (x + j > ILI9341_TFTWIDTH) {
@@ -381,5 +383,52 @@ void LCD_drawProgBar_v(float value, unsigned short x, unsigned short y, unsigned
         }
         i++;
     }
+
+}
+
+void touch_read(unsigned short *x, unsigned short *y, unsigned int *z) {
+    unsigned char read1, read2;
+    unsigned short z1temp, z2temp;
+    touch_CS = 0;
+
+    spi_io(touch_x_meas);
+    read1 = spi_io(0x00);
+    read2 = spi_io(0x00);
+    *x = (((read1 << 8) | (read2)) >> 3);
+
+    //    if (((((read1 << 8) | (read2)) >> 3)>>12) ==0)
+    //    {
+    //        LATAbits.LATA4 =1;
+    //    }
+
+    spi_io(touch_y_meas);
+    read1 = spi_io(0x00);
+    read2 = spi_io(0x00);
+    *y = (((read1 << 8) | (read2)) >> 3);
+
+    spi_io(touch_z1_meas);
+    read1 = spi_io(0x00);
+    read2 = spi_io(0x00);
+    z1temp = ((read1 << 8) | (read2)) >> 3;
+
+    spi_io(touch_z2_meas);
+    read1 = spi_io(0x00);
+    read2 = spi_io(0x00);
+    z2temp = ((read1 << 8) | (read2)) >> 3;
+
+
+    *z = z1temp - z2temp + 4095;
+    touch_CS = 1;
+}
+
+
+void LCD_drawButton(unsigned short x_mid, unsigned short y_mid, unsigned short height, unsigned short width, unsigned short fcolour, unsigned short bcolour, char *String) {
+    int i, j;
+    for (i = x_mid - width / 2; i < x_mid + width / 2; i++) {
+        for (j = y_mid - height / 2; j < y_mid + height / 2; j++) {
+            LCD_drawPixel(i,j,bcolour);
+        }
+    }
+    LCD_drawString(String,x_mid-10,y_mid-4,fcolour,bcolour);
 
 }
