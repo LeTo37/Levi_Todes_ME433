@@ -490,7 +490,7 @@ void APP_Tasks(void) {
             MAF_buffer[NO_SAMPLES - 1] = IMUdata[3];
             MAF_total += MAF_buffer[NO_SAMPLES - 1];
             MAF = MAF_total / NO_SAMPLES;
-            //IIR
+            //IIR****************************************
             if (i == 0) {
                 prevVal = IMUdata[3];
                 IIR = IMUdata[3];
@@ -498,7 +498,7 @@ void APP_Tasks(void) {
                 IIR = 0.85 * (prevVal / (i + 1)) + 0.15 * IMUdata[3];
             }
             prevVal += IMUdata[3];
-            //FIR
+            //FIR****************************************
             for (j = 0; j < NO_SAMPLES; j++) {
                 FIR += MAF_buffer[j] * FIR_buffer[j];
             }
