@@ -18,7 +18,7 @@ int main() {
     TRISBbits.TRISB4 = 1;
     //Make A4 an output - initially high (GREEN LED)
     TRISAbits.TRISA4 = 0;
-    LATAbits.LATA4 = 1;
+    LATAbits.LATA4 = 0;
     __builtin_enable_interrupts();
 
     //I2C
@@ -29,13 +29,19 @@ int main() {
     _CP0_SET_COUNT(0);
 
     while (1) {
-        char read = 0;
-        read = getExpander();
-        if (((read>>6)&0x01) == 1) {
-            setExpander(OLAT, 0x00); //LED OFF
-        } else {
-            setExpander(OLAT, 0x01); //LED ON
+                char read = 0;
+                read = getExpander();
+                if (((read >> 6)&0x01) == 1) {
+                    setExpander(OLAT, 0x00); //LED OFF
+                } else {
+                    setExpander(OLAT, 0x01); //LED ON
+                }
+
+        if (_CP0_GET_COUNT() > (4800000)) {
+            LATAbits.LATA4 = !LATAbits.LATA4;
+            _CP0_SET_COUNT(0);
         }
+
 
     }
 }

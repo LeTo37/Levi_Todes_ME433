@@ -61,12 +61,20 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Global Data Definitions
 // *****************************************************************************
 // *****************************************************************************
+#define NO_SAMPLES 10
 
 uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
-int len, i = 0, r = 0;
+int len, i = 0, j = 0, r = 0;
 int startTime = 0; // to remember the loop time
 short IMUdata[7];
+int MAF, MAF_total, prevVal;
+short MAF_buffer[NO_SAMPLES];
+//10 samples, 0.2 cutoff
+//float FIR_buffer[] = {0.00219904724846358,0.0173597084806051,0.0736728653074093,0.166238585186075,0.240529793777448,0.240529793777448,0.166238585186075,0.0736728653074093,0.0173597084806051,0.00219904724846358};
+//10 samples, 0.2 cutoff
+float FIR_buffer[] = {-0.00529514068541969, -0.00280324881506593, 0.0435047808900336, 0.169487837740763, 0.295105770869689, 0.295105770869689, 0.169487837740763, 0.0435047808900336, -0.00280324881506593, -0.00529514068541969};
+float IIR, FIR = 0;
 
 // *****************************************************************************
 /* Application Data
@@ -424,7 +432,7 @@ void APP_Tasks(void) {
               TYPED) */
 
                 if (appData.readBuffer[0] == 'r') {
-                    LATAbits.LATA4 = 1;
+                    LATAbits.LATA4 = !LATAbits.LATA4;
                     r = 1;
                 }
 
@@ -472,29 +480,51 @@ void APP_Tasks(void) {
             /* THIS IS WHERE YOU CAN READ YOUR IMU, PRINT TO THE LCD, ETC */
 
             IMU_read(IMUdata);
+            MAF_total = 0;
+            FIR = 0;
+            // MAF FILTER********************************
+            for (j = 0; j < NO_SAMPLES - 1; j++) {
+                MAF_buffer[j] = MAF_buffer[j + 1];
+                MAF_total += MAF_buffer[j];
+            }
+            MAF_buffer[NO_SAMPLES - 1] = IMUdata[3];
+            MAF_total += MAF_buffer[NO_SAMPLES - 1];
+            MAF = MAF_total / NO_SAMPLES;
+            //IIR
+            if (i == 0) {
+                prevVal = IMUdata[3];
+                IIR = IMUdata[3];
+            } else {
+                IIR = 0.85 * (prevVal / (i + 1)) + 0.15 * IMUdata[3];
+            }
+            prevVal += IMUdata[3];
+            //FIR
+            for (j = 0; j < NO_SAMPLES; j++) {
+                FIR += MAF_buffer[j] * FIR_buffer[j];
+            }
+            // ******************************************
 
-            len = sprintf(dataOut, "%d   %d %d %d %d %d %d\r\n", i, IMUdata[1], IMUdata[2], IMUdata[3], IMUdata[4], IMUdata[5], IMUdata[6]);
+            len = sprintf(dataOut, "%2d RAW: %4d MAF: %4d IIR: %5.2f FIR: %5.2f \r\n", i, IMUdata[3], MAF, IIR, FIR);
             i++; // increment the index so we see a change in the text
             /* IF A LETTER WAS RECEIVED, ECHO IT BACK SO THE USER CAN SEE IT */
-            if (appData.isReadComplete || r!=1) {
+            if (appData.isReadComplete || r != 1) {
                 i = 0;
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle, NULL, 1,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-                //                startTime = _CP0_GET_COUNT(); // reset the timer for accurate delays
 
             }/* ELSE SEND THE MESSAGE YOU WANTED TO SEND */
             else {
-                if (i == 100)
-                {
-                    r =0;
-                    i=0;
+                if (i == 100) {
+                    r = 0;
+                    i = 0;
+                    LATAbits.LATA4 = 0;
                 }
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle,
                         dataOut, len,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-                startTime = _CP0_GET_COUNT(); // reset the timer for accurate delays
+                startTime = _CP0_GET_COUNT();
             }
             break;
 
