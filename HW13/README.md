@@ -1,0 +1,1 @@
+The '.stl' files are viewable in git
