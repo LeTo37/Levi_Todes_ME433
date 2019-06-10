@@ -321,7 +321,7 @@ void LCD_drawString(char *string, unsigned short x, unsigned short y, unsigned s
 void LCD_drawProgBar_h(float value, unsigned short x, unsigned short y, unsigned short length, unsigned short fcolour, unsigned short bcolour) {
     char i = 0;
     char j;
-    int val = (int)value;
+    int val = (int) value;
     while (i <= length) {
         for (j = 0; j < 8; j++) {
             if (x + i > ILI9341_TFTWIDTH) {
@@ -354,7 +354,7 @@ void LCD_drawProgBar_h(float value, unsigned short x, unsigned short y, unsigned
 void LCD_drawProgBar_v(float value, unsigned short x, unsigned short y, unsigned short length, unsigned short fcolour, unsigned short bcolour) {
     char i = 0;
     char j;
-    int val = (int)value;
+    int val = (int) value;
     while (i <= length) {
         for (j = 0; j < 8; j++) {
             if (x + j > ILI9341_TFTWIDTH) {
@@ -380,6 +380,18 @@ void LCD_drawProgBar_v(float value, unsigned short x, unsigned short y, unsigned
             }
         }
         i++;
+    }
+
+}
+
+void LCD_plot_high_three(unsigned char values[240], unsigned short y, unsigned short fcolour) {
+    unsigned char x = 0;
+    unsigned char j, i;
+    float val;
+    for (i = 0; i < 240; i++) {
+        val = (values[i]&0b11100000);
+        val = (50)*(val/224);
+        LCD_drawPixel(i, y - val, fcolour);
     }
 
 }

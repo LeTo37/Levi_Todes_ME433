@@ -343,9 +343,8 @@ void APP_Tasks(void) {
             //            if (movement_length > 50) {
             appData.mouseButton[0] = MOUSE_BUTTON_STATE_RELEASED;
             appData.mouseButton[1] = MOUSE_BUTTON_STATE_RELEASED;
-            
             //deadband check
-            if (xmouse > 1 || xmouse < -1)
+            if (xmouse > 1.3 || xmouse < -1.3)
             {
                 appData.xCoordinate = xmouse;
             }else{
