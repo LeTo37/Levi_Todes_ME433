@@ -2,9 +2,8 @@
 
 Line following mario kart with koopa shell shooting exhausts!
 
-![Mario](Mario.jpg)
+![Mario](Mario.png)
 
 Video:
-<div align="center">
-  <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/2UeKTdjgbUQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</div>
+
+[![Mario Kart](http://i3.ytimg.com/vi/2UeKTdjgbUQ/maxresdefault.jpg)](https://www.youtube-nocookie.com/embed/2UeKTdjgbUQ "Mario Kart")
