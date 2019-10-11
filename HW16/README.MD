@@ -6,4 +6,4 @@ Line following mario kart with koopa shell shooting exhausts!
 
 Video:
 
-[![Mario Kart](http://i3.ytimg.com/vi/2UeKTdjgbUQ/maxresdefault.jpg)](https://www.youtube-nocookie.com/embed/2UeKTdjgbUQ "Mario Kart")
+[![Mario Kart](http://i3.ytimg.com/vi/2UeKTdjgbUQ/maxresdefault.jpg)](https://www.youtube-nocookie.com/embed/VJDj0xeSaTw "Mario Kart")
